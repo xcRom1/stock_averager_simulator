@@ -24,7 +24,7 @@ This is a simple and intuitive tool to help investors calculate how many additio
 
 ```bash
 npm install
-npm run dev
+npm start
 ```
 
 Then open [http://localhost:3000](http://localhost:3000) in your browser.
