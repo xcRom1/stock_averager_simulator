@@ -9,6 +9,8 @@ import {
   Container,
   FormControl,
   FormLabel,
+  FormHelperText,
+  FormErrorMessage,
   Stack,
   ColorModeScript,
 } from '@chakra-ui/react';
@@ -31,13 +33,15 @@ function App() {
   const l = labels[lang];
   const symbol = currency === 'USD' ? '$' : '€';
 
-  const calculate = () => {
-    const s = parseFloat(currentShares);
-    const p = parseFloat(averagePrice);
-    const c = parseFloat(currentPrice);
-    const t = parseFloat(targetPrice);
+  const s = parseFloat(currentShares);
+  const p = parseFloat(averagePrice);
+  const c = parseFloat(currentPrice);
+  const t = parseFloat(targetPrice);
 
-    if (isNaN(s) || isNaN(p) || isNaN(c) || isNaN(t) || t >= p) {
+  const isInvalidTarget = !isNaN(t) && !isNaN(c) && t <= c;
+
+  const calculate = () => {
+    if (isNaN(s) || isNaN(p) || isNaN(c) || isNaN(t) || isInvalidTarget || t >= p) {
       setResult(l.error);
       return;
     }
@@ -76,12 +80,33 @@ function App() {
               <Input type="number" value={currentPrice} onChange={(e) => setCurrentPrice(e.target.value)} />
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={isInvalidTarget}>
               <FormLabel>{l.targetPrice} ({symbol})</FormLabel>
               <Input type="number" value={targetPrice} onChange={(e) => setTargetPrice(e.target.value)} />
+              {isInvalidTarget ? (
+                <FormErrorMessage>
+                  {lang === 'EN'
+                    ? 'Target price must be higher than the current stock price.'
+                    : 'Le prix cible doit être supérieur au prix actuel de l’action.'}
+                </FormErrorMessage>
+              ) : (
+                <FormHelperText>
+                  {lang === 'EN'
+                    ? 'Must be lower than your average price, and higher than the market price.'
+                    : 'Doit être inférieur à votre prix moyen, et supérieur au prix du marché.'}
+                </FormHelperText>
+              )}
             </FormControl>
 
-            <Button colorScheme="blue" onClick={calculate} width="100%">{l.calculate}</Button>
+            <Button
+              colorScheme="blue"
+              onClick={calculate}
+              width="100%"
+              isDisabled={isInvalidTarget}
+            >
+              {l.calculate}
+            </Button>
+
             <ResultMessage result={result} />
           </VStack>
         </Box>
